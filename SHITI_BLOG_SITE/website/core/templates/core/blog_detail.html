@@ -1,0 +1,140 @@
+{% extends 'core/base.html' %}
+{% csrf_token %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Blog Media -->
+        {% if blog.media %}
+        <div class="rounded overflow-hidden shadow-lg">
+            <img id="media" src="{{ blog.media.url }}" alt="{{ blog.title }} Media" class="w-full object-cover h-64">
+        </div>
+        {% endif %}
+
+        <!-- Blog Details -->
+        <div>
+            <h2 class="text-3xl font-semibold mb-3">{{ blog.title }}</h2>
+            <p class="text-sm text-gray-500 mb-4">
+                <i class="fas fa-user"></i> {% if user == blog.author %}You{% else %}{{ blog.author.get_full_name|default:blog.author.username }}{% endif %}
+                | <i class="fas fa-calendar"></i> {{ blog.created_at }}
+            </p>
+            <p class="mb-6">{{ blog.content|linebreaks }}</p>
+
+            <div class="flex space-x-4">
+                <button id="like-button" data-blog-id="{{ blog.id }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    <i class="fas fa-thumbs-up"></i> Like
+                </button>
+                <span id="likes-count" class="text-gray-600">{{ blog.likemodel_set.count }} Likes</span>
+            </div>
+
+            {% if user.is_authenticated and user == blog.author %}
+            <div class="mt-4">
+                <a href="{% url 'blog_update' blog.pk %}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mr-2">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <a href="{% url 'blog_delete' blog.pk %}" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                    <i class="fas fa-trash"></i> Delete
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="mt-10">
+        <h3 class="text-xl font-semibold mb-3">Comments</h3>
+        <div class="space-y-4">
+            {% for comment in blog.commentmodel_set.all %}
+            <div class="border p-4 rounded-lg shadow-sm">
+                <h5 class="font-bold">
+                    {% if user == comment.user %}You{% else %}{{ comment.user.get_full_name|default:comment.user.username }}{% endif %}
+                </h5>
+                <p class="text-gray-700">{{ comment.text }}</p>
+                <p class="text-sm text-gray-500">{{ comment.created_at }}</p>
+            </div>
+            {% empty %}
+            <p id="no-comment" class="text-gray-500">No comments yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Add Comment Form -->
+    <div class="mt-6">
+        <form id="comment-form" method="POST" class="bg-gray-100 p-6 rounded-lg shadow-sm">
+            {% csrf_token %}
+            <label for="comment-text" class="block text-lg font-medium mb-2"><i class="far fa-comment"></i> Add a Comment</label>
+            <textarea id="comment-text" name="form" rows="3" class="w-full p-3 border rounded-lg mb-3" placeholder="Write your comment here..."></textarea>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    const csrfToken = "{{ csrf_token }}";
+
+    // Like Button Script
+    document.addEventListener('DOMContentLoaded', () => {
+        const likeButton = document.getElementById('like-button');
+        const blogId = likeButton.getAttribute('data-blog-id');
+
+        likeButton.addEventListener('click', () => {
+            fetch('/api/like-toggle/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({ blog_id: blogId }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('likes-count').innerText = `${data.likes_count} Likes`;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+
+    // Comment Form Script
+    const commentForm = document.getElementById('comment-form');
+    const commentText = document.getElementById('comment-text');
+    const noComment = document.getElementById('no-comment');
+
+    commentForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const text = commentText.value;
+        const blogId = "{{ blog.id }}";
+
+        fetch(`/api/blog/${blogId}/comment/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({ text }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === 'Comment created successfully') {
+                commentText.value = '';
+                if (noComment) noComment.style.display = 'none';
+
+                const commentSection = document.querySelector('.space-y-4');
+                const newComment = document.createElement('div');
+                newComment.classList.add('border', 'p-4', 'rounded-lg', 'shadow-sm');
+                newComment.innerHTML = `
+                    <h5 class="font-bold">You</h5>
+                    <p class="text-gray-700">${text}</p>
+                    <p class="text-sm text-gray-500">Just now</p>
+                `;
+                commentSection.prepend(newComment);
+            } else {
+                alert('Failed to add comment. Please try again.');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+{% endblock %}

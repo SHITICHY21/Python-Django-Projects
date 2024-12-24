@@ -1,0 +1,22 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container mx-auto py-10">
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-5 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-semibold mb-3">Delete Blog Post</h2>
+        <p class="text-lg mb-5">Are you sure you want to delete the blog post titled <span class="font-bold">"{{ blog.title }}"</span>?</p>
+        <p class="text-sm text-gray-600 mb-5">This action is irreversible and cannot be undone.</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="flex items-center justify-between">
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded shadow">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+                <a href="{% url 'blog_detail' blog.pk %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded shadow">
+                    <i class="fas fa-times-circle"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="container py-10">
+    <h1 class="text-4xl font-bold text-blue-600 mb-6 text-center">Blog Highlights</h1>
+
+    <!-- Blog Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for blog in blogs %}
+        <div class="bg-gray-100 border rounded-lg shadow-md p-5 hover:shadow-lg transition duration-200">
+            <h2 class="text-xl font-semibold text-blue-500">
+                <a href="{% url 'blog_detail' blog.pk %}" class="hover:underline">{{ blog.title }}</a>
+            </h2>
+            <p class="text-sm text-gray-500 mt-2">
+                {% if user == blog.author %}You{% else %}{{ blog.author.get_full_name|default:blog.author.username }}{% endif %}
+                | {{ blog.created_at|date:"F d, Y" }}
+            </p>
+            <p class="mt-4 text-gray-700">{{ blog.content|truncatechars:100 }}</p>
+            <div class="mt-3 flex justify-between items-center">
+                <span class="text-sm text-gray-600">
+                    <i class="fas fa-thumbs-up"></i> {{ blog.likemodel_set.count }} Likes
+                    &nbsp;|&nbsp;
+                    <i class="fas fa-eye"></i> {{ blog.views }} Views
+                </span>
+                <a href="{% url 'blog_detail' blog.pk %}" class="bg-blue-500 text-white px-4 py-1 rounded-lg hover:bg-blue-600">
+                    Read More
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <p class="col-span-full text-gray-500 text-center">No blogs available at the moment.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-8">
+        <nav aria-label="Page navigation">
+            <ul class="flex justify-center space-x-2">
+                {% if page_obj.has_previous %}
+                <li>
+                    <a class="bg-gray-200 px-3 py-2 rounded-lg hover:bg-gray-300" href="?page=1">&laquo;&laquo;</a>
+                </li>
+                <li>
+                    <a class="bg-gray-200 px-3 py-2 rounded-lg hover:bg-gray-300" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+                </li>
+                {% endif %}
+
+                {% for i in page_obj.paginator.page_range %}
+                <li>
+                    <a class="{% if page_obj.number == i %}bg-blue-500 text-white{% else %}bg-gray-200 hover:bg-gray-300{% endif %} px-3 py-2 rounded-lg" href="?page={{ i }}">{{ i }}</a>
+                </li>
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <li>
+                    <a class="bg-gray-200 px-3 py-2 rounded-lg hover:bg-gray-300" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+                </li>
+                <li>
+                    <a class="bg-gray-200 px-3 py-2 rounded-lg hover:bg-gray-300" href="?page={{ page_obj.paginator.num_pages }}">&raquo;&raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_script %}
+<script>
+    const sortBtns = document.querySelectorAll('.sort-btn');
+    const urlParams = new URLSearchParams(window.location.search);
+    const sortedBy = urlParams.get('sorted_by');
+
+    sortBtns.forEach(btn => {
+        if (btn.getAttribute('data-sort') === sortedBy) {
+            btn.classList.add('bg-blue-500 text-white');
+        }
+
+        btn.addEventListener('click', () => {
+            const sortParam = btn.getAttribute('data-sort');
+            const baseURL = window.location.origin + window.location.pathname;
+            const newURL = `${baseURL}?sorted_by=${sortParam}`;
+            window.location.href = newURL;
+        });
+    });
+</script>
+{% endblock %}
