@@ -1,8 +1,7 @@
 # Django Blog Project Documentation
 
 **Version:** 1.0  
-**License:** MIT License  
-**Author:** Mark Carcillar
+**Author:** Shiti Chowdhury
 
 ## Table of Contents
 
@@ -147,7 +146,7 @@ I welcome contributions from the developer community to help improve and grow th
 
 ## Contact
 
-For support, feedback, or inquiries, please contact markac.work@gmail.com.
+For support, feedback, or inquiries, please contact shitichowdhury21@gmail.com.
 
 ---
 
