@@ -1,6 +1,5 @@
 # Django Blog Project Documentation
 
-**Version:** 1.0  
 **Author:** Shiti Chowdhury
 
 ## Table of Contents
