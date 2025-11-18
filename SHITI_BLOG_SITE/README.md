@@ -40,24 +40,11 @@ The Django Blog project follows a standard Django project structure, with the fo
 
 ### User Registration and Authentication
 
-- To create an account, click the "Register" link in the navigation menu.
-- To log in, click the "Login" link in the navigation menu.
-- Authenticated users can create their own blogs, comment on blogs, and like/unlike blogs.
-
 ### Blog Management
-
-- On the home page, you can view the latest blog posts.
-- Use the sorting options to arrange blog posts by date, views, or likes.
-- Navigate through multiple pages of blog posts using pagination.
 
 ### Interaction
 
-- Authenticated users can like or unlike blog posts without page reload.
-- Users can also post comments on their own or other users' blog posts.
-
 ### Search
-
-- Utilize the search form in the navigation menu to search for specific blog posts based on title, content, or author name.
 
 ## Additional Resources
 
@@ -76,6 +63,5 @@ The Django Blog project relies on several external frameworks and libraries to e
 
 These dependencies significantly contribute to the functionality and aesthetics of the Django Blog project, ensuring a seamless and visually appealing user experience.
 
-Please note that detailed installation instructions for these dependencies can be found in the "Getting Started" section of this documentation.
 
 
